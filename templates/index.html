@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption & Decryption</title>
+</head>
+<body>
+    <h1>Encryption and Decryption App</h1>
+
+    <!-- Encryption Form -->
+    <h2>Encrypt Text</h2>
+    <form id="encryption-form">
+        <label for="text">Enter Text:</label>
+        <input type="text" id="text" name="text" required><br><br>
+
+        <label for="method">Choose Method:</label>
+        <select id="method" name="method">
+            <option value="OTP">One-Time Pad</option>
+            <option value="3DES">3DES</option>
+            <option value="AES">AES</option>
+        </select><br><br>
+
+        <button type="submit">Encrypt</button>
+    </form>
+
+    <h3>Encrypted Output:</h3>
+    <p><strong>Ciphertext:</strong> <span id="ciphertext"></span></p>
+    <p><strong>Key:</strong> <span id="key"></span></p>
+
+    <hr>
+
+    <!-- Decryption Form -->
+    <h2>Decrypt Text</h2>
+    <form id="decryption-form">
+        <label for="ciphertext-input">Ciphertext:</label>
+        <input type="text" id="ciphertext-input" required><br><br>
+
+        <label for="key-input">Key:</label>
+        <input type="text" id="key-input" required><br><br>
+
+        <label for="method-decrypt">Choose Method:</label>
+        <select id="method-decrypt">
+            <option value="OTP">One-Time Pad</option>
+            <option value="3DES">3DES</option>
+            <option value="AES">AES</option>
+        </select><br><br>
+
+        <button type="submit">Decrypt</button>
+    </form>
+
+    <h3>Decrypted Output:</h3>
+    <p><strong>Plaintext:</strong> <span id="plaintext"></span></p>
+
+    <script>
+        // Encryption Form Submission
+        document.getElementById('encryption-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const text = document.getElementById('text').value;
+            const method = document.getElementById('method').value;
+
+            const response = await fetch('/encrypt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, method })
+            });
+
+            const data = await response.json();
+            document.getElementById('ciphertext').textContent = data.ciphertext || "Error!";
+            document.getElementById('key').textContent = data.key || "Error!";
+        });
+
+        // Decryption Form Submission
+        document.getElementById('decryption-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const ciphertext = document.getElementById('ciphertext-input').value;
+            const key = document.getElementById('key-input').value;
+            const method = document.getElementById('method-decrypt').value;
+
+            const response = await fetch('/decrypt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ciphertext, key, method })
+            });
+
+            const data = await response.json();
+            document.getElementById('plaintext').textContent = data.plaintext || "Error!";
+        });
+    </script>
+</body>
+</html>
