@@ -3,91 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encryption & Decryption</title>
+    <title>Encryption/Decryption App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .output-box {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+        .output-box .btn-copy {
+            background-color: #007BFF;
+            font-size: 14px;
+            padding: 8px 16px;
+            margin-top: 10px;
+        }
+        .btn-copy:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Encryption and Decryption App</h1>
 
-    <!-- Encryption Form -->
-    <h2>Encrypt Text</h2>
-    <form id="encryption-form">
-        <label for="text">Enter Text:</label>
-        <input type="text" id="text" name="text" required><br><br>
+    <div class="container">
+        <h1>Encryption and Decryption App</h1>
+        
+        <!-- Encryption Section -->
+        <div class="form-group">
+            <label for="plaintext">Text to Encrypt:</label>
+            <textarea id="plaintext" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="method">Select Encryption Method:</label>
+            <select id="method">
+                <option value="OTP">OTP</option>
+                <option value="3DES">3DES</option>
+                <option value="AES">AES</option>
+                <option value="RSA">RSA</option>
+            </select>
+        </div>
+        <button class="btn" onclick="encryptText()">Encrypt</button>
 
-        <label for="method">Choose Method:</label>
-        <select id="method" name="method">
-            <option value="OTP">One-Time Pad</option>
-            <option value="3DES">3DES</option>
-            <option value="AES">AES</option>
-        </select><br><br>
+        <!-- Encrypted Output Section -->
+        <div class="output-box" id="encrypted-output" style="display: none;">
+            <label for="ciphertext">Encrypted Text:</label>
+            <textarea id="ciphertext" rows="4" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('ciphertext')">Copy Ciphertext</button>
+            <label for="encryption-key">Encryption Key:</label>
+            <textarea id="key" rows="2" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('key')">Copy Key</button>
+        </div>
 
-        <button type="submit">Encrypt</button>
-    </form>
+        <!-- Decryption Section -->
+        <div class="form-group">
+            <label for="ciphertext-decrypt">Encrypted Text to Decrypt:</label>
+            <textarea id="ciphertext-decrypt" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="key-decrypt">Enter Encryption Key:</label>
+            <textarea id="key-decrypt" rows="2"></textarea>
+        </div>
+        <button class="btn" onclick="decryptText()">Decrypt</button>
 
-    <h3>Encrypted Output:</h3>
-    <p><strong>Ciphertext:</strong> <span id="ciphertext"></span></p>
-    <p><strong>Key:</strong> <span id="key"></span></p>
-
-    <hr>
-
-    <!-- Decryption Form -->
-    <h2>Decrypt Text</h2>
-    <form id="decryption-form">
-        <label for="ciphertext-input">Ciphertext:</label>
-        <input type="text" id="ciphertext-input" required><br><br>
-
-        <label for="key-input">Key:</label>
-        <input type="text" id="key-input" required><br><br>
-
-        <label for="method-decrypt">Choose Method:</label>
-        <select id="method-decrypt">
-            <option value="OTP">One-Time Pad</option>
-            <option value="3DES">3DES</option>
-            <option value="AES">AES</option>
-        </select><br><br>
-
-        <button type="submit">Decrypt</button>
-    </form>
-
-    <h3>Decrypted Output:</h3>
-    <p><strong>Plaintext:</strong> <span id="plaintext"></span></p>
+        <!-- Decrypted Output Section -->
+        <div class="output-box" id="decrypted-output" style="display: none;">
+            <label for="decrypted-text">Decrypted Text:</label>
+            <textarea id="decrypted-text" rows="4" readonly></textarea>
+            <button class="btn-copy" onclick="copyText('decrypted-text')">Copy Decrypted Text</button>
+        </div>
+    </div>
 
     <script>
-        // Encryption Form Submission
-        document.getElementById('encryption-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
+        function encryptText() {
+            const plaintext = document.getElementById("plaintext").value;
+            const method = document.getElementById("method").value;
 
-            const text = document.getElementById('text').value;
-            const method = document.getElementById('method').value;
-
-            const response = await fetch('/encrypt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, method })
+            fetch("/encrypt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text: plaintext, method: method })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ciphertext && data.key) {
+                    document.getElementById("ciphertext").value = data.ciphertext;
+                    document.getElementById("key").value = data.key;
+                    document.getElementById("encrypted-output").style.display = "block";
+                } else {
+                    alert("Error encrypting text.");
+                }
             });
+        }
 
-            const data = await response.json();
-            document.getElementById('ciphertext').textContent = data.ciphertext || "Error!";
-            document.getElementById('key').textContent = data.key || "Error!";
-        });
+        function decryptText() {
+            const ciphertext = document.getElementById("ciphertext-decrypt").value;
+            const key = document.getElementById("key-decrypt").value;
+            const method = document.getElementById("method").value;
 
-        // Decryption Form Submission
-        document.getElementById('decryption-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const ciphertext = document.getElementById('ciphertext-input').value;
-            const key = document.getElementById('key-input').value;
-            const method = document.getElementById('method-decrypt').value;
-
-            const response = await fetch('/decrypt', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ciphertext, key, method })
+            fetch("/decrypt", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ciphertext: ciphertext, key: key, method: method })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.plaintext) {
+                    document.getElementById("decrypted-text").value = data.plaintext;
+                    document.getElementById("decrypted-output").style.display = "block";
+                } else {
+                    alert("Error decrypting text.");
+                }
             });
+        }
 
-            const data = await response.json();
-            document.getElementById('plaintext').textContent = data.plaintext || "Error!";
-        });
+        function copyText(id) {
+            const textArea = document.getElementById(id);
+            textArea.select();
+            document.execCommand("copy");
+        }
     </script>
+
 </body>
 </html>
