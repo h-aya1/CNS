@@ -130,4 +130,5 @@ def decrypt():
     return jsonify({"plaintext": plaintext})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Run the app with SSL certificates
+    app.run(debug=True, ssl_context=('cert.pem', 'key.pem'))
